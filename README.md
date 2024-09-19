@@ -2,14 +2,18 @@
 
 ## lesson setup
 
-- dockerfile for postgres DB
-- sql script to create DB
-- sql script to insert data
-- sql script to update data ?  
+### what you'll need:
 
-## to run
+1. docker / docker compose (comes with it these days)
 
-### install psycopg2 python postgres library
+2. python 
+
+3. python virtual env, or you'll be installing globally 
+
+### project setup
+
+- install psycopg2 python postgres library
+
 ### you can use a virtual env if you want (windows example below)
 
     python -m virtualenv env 
@@ -20,14 +24,18 @@
 
 ### spin up the postgres docker image using docker compose
 
-### run the sql scripts to watch batch / atomic operations
-### uses python script
+- from project root
 
-- run the create-table script
-- run the insert script
-- run the read_data script
-- run the update script
-- run the read_data script
-- run the bad_update script
-- run the read_data script
+    docker compose up --build
+
+### for the demo, run the main.py file which will show a failed batch transaction
+
+1. drop tables, make new users and bank branches
+2. insert starting data into those tables
+3. perform successful batch update of the account and bank branch data
+3. perform failing batch update of the account and bank branch data
+
+### how this shows batch transactions ?
+
+- when the last transaction fails, the initial updates to user accounts also fail
 
