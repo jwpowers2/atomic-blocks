@@ -30,6 +30,6 @@ BEGIN;
     UPDATE account SET balance = balance + 100.00 WHERE user_name = 'Alice';
     UPDATE branch SET balance = balance + 100 WHERE branch_name='BigBank';
     UPDATE account SET balance = balance + 100.00 WHERE user_name = 'Bob';
-    UPDATE branch SET balance = balance + 10000 WHERE branch_name='BigBank';
+    UPDATE branch SET balance = balance + 100000 WHERE branch_name='BigBank';
 COMMIT;
 """
