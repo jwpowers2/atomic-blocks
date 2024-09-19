@@ -1,36 +1,35 @@
-create_accounts = "CREATE TABLE IF NOT EXISTS accounts (user_name varchar(255),balance numeric);"
-create_branches = "CREATE TABLE IF NOT EXISTS branches (user_name varchar(255),balance int);"
 
-insert_accounts = "INSERT INTO accounts (user_name, balance) VALUES ('Bob', 0);" 
-insert_branches = "INSERT INTO branches (user_name, balance) VALUES ('Alice', 0);"
+create_branch = "CREATE TABLE IF NOT EXISTS branch (id SERIAL PRIMARY KEY,branch_name varchar(255),balance smallint);"
+create_account =   """CREATE TABLE IF NOT EXISTS account 
+                    (id SERIAL PRIMARY KEY,user_name varchar(255),balance numeric,branch_id int);"""
 
-read_data_accounts = "SELECT * FROM accounts;"
-read_data_branches = "SELECT * from branches;"
+insert_branch = "INSERT INTO branch (branch_name, balance) VALUES ('BigBank', 0)"
+insert_account_1 = "INSERT INTO account (user_name,balance,branch_id) VALUES ('Bob', 0, (SELECT id FROM branch WHERE branch_name='BigBank'));" 
+insert_account_2 = "INSERT INTO account (user_name,balance,branch_id) VALUES ('Alice', 0, (SELECT id FROM branch WHERE branch_name='BigBank'));"
 
-update_good = """BEGIN 
-    SAVEPOINT  start_tran;
-    UPDATE accounts SET balance = balance - 100.00 WHERE user_name = 'Alice';
-    UPDATE branches SET balance = balance - 100 
-        WHERE user_name = (SELECT branch_name FROM accounts WHERE user_name = 'Alice');
-    UPDATE accounts SET balance = balance - 100.00 WHERE user_name = 'Bob';
-    UPDATE branches SET balance = balance - 100 
-        WHERE user_name = (SELECT branch_name FROM accounts WHERE user_name = 'Bob');
-    EXCEPTION
-        WHEN OTHERS THEN
-            ROLLBACK to start_tran;
-            RAISE;
-END;"""
+drop_account = "DROP TABLE IF EXISTS account;"
+drop_branch = "DROP TABLE IF EXISTS branch;"
 
-update_breaking = "BEGIN\
-    SAVEPOINT  start_tran;\
-    UPDATE accounts SET balance = balance - 100.00 WHERE user_name = 'Alice';\
-    UPDATE branches SET balance = balance - 100.00 \
-        WHERE user_name = (SELECT branch_name FROM accounts WHERE user_name = 'Alice');\
-    UPDATE accounts SET balance = balance - 100.00 WHERE user_name = 'Bob';\
-    UPDATE branches SET balance = balance - 100.00 \
-        WHERE user_name = (SELECT branch_name FROM accounts WHERE user_name = 'Bob');\
-EXCEPTION\
-    WHEN OTHERS THEN\
-        ROLLBACK to start_tran;\
-        RAISE;\
-COMMIT;"
+read_data_account = "SELECT * FROM account;"
+read_data_branch = "SELECT * from branch;"
+
+# begin -> commit makes a transaction in postgres
+# if anything goes wrong, it automatically rolls everything back which has happened in the transaction block
+
+update_good = """
+BEGIN;
+    UPDATE account SET balance = balance + 100.00 WHERE user_name = 'Alice';
+    UPDATE branch SET balance = balance + 100 WHERE branch_name='BigBank';
+    UPDATE account SET balance = balance + 100.00 WHERE user_name = 'Bob';
+    UPDATE branch SET balance = balance + 100 WHERE branch_name='BigBank';
+COMMIT;
+"""
+
+update_breaking = """
+BEGIN;
+    UPDATE account SET balance = balance + 100.00 WHERE user_name = 'Alice';
+    UPDATE branch SET balance = balance + 100 WHERE branch_name='BigBank';
+    UPDATE account SET balance = balance + 100.00 WHERE user_name = 'Bob';
+    UPDATE branch SET balance = balance + 10000 WHERE branch_name='BigBank';
+COMMIT;
+"""
