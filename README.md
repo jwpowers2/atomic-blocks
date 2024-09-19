@@ -1,4 +1,4 @@
-# lesson on atomic block (batch) inserts
+# Batch Transactions in Postgresql, DEMO
 
 ## lesson setup
 
